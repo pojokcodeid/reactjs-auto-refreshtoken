@@ -1,0 +1,51 @@
+@refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5fZG9lIiwiaWF0IjoxNzMzNzM0ODE2LCJleHAiOjE3MzQzMzk2MTZ9.IkTLzvJpyFySoQ-r8D-PF5YJSxHTvs9yX022BeQUy9s
+@accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5fZG9lIiwiaWF0IjoxNzMzNzM1MDAyLCJleHAiOjE3MzM3Mzg2MDJ9.1DtYd6hB-yNNl7L_PZuWhnka97lH-SWP5-TX0QS69eY
+### Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "123456"
+}
+
+
+### Refresh Token
+POST http://localhost:3000/auth/refresh
+Content-Type: application/json
+Authorization: Bearer {{refreshToken}}
+
+### Get All Personal Data
+GET http://localhost:3000/personaldata
+Authorization: Bearer {{accessToken}}
+
+### Get Personal Data by ID
+GET http://localhost:3000/personaldata/1
+Authorization: Bearer {{accessToken}}
+
+### Create New Personal Data
+POST http://localhost:3000/personaldata
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "id": 3,
+  "name": "Sam Smith",
+  "email": "sam@example.com"
+}
+
+### Update Personal Data by ID
+PUT http://localhost:3000/personaldata/1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "John Doe Updated",
+  "email": "johnupdated@example.com"
+}
+
+### Delete Personal Data by ID
+DELETE http://localhost:3000/personaldata/4
+Authorization: Bearer {{accessToken}}
+
+

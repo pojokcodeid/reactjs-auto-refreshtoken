@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "john_doe",
+      "password": "123456"
+    },
+    {
+      "id": 2,
+      "username": "jane_doe",
+      "password": "abcdef"
+    }
+  ],
+  "personaldata": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Jane Doe",
+      "email": "jane@example.com"
+    },
+    {
+      "id": 3,
+      "name": "Pcode",
+      "email": "pojok2@gmail.com"
+    }
+  ]
+}
