@@ -6,7 +6,7 @@ const router = jsonServer.router("db.json");
 const middlewares = jsonServer.defaults();
 
 const SECRET_KEY = "123456789";
-const ACCESS_TOKEN_EXPIRY = "1h";
+const ACCESS_TOKEN_EXPIRY = "5m";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
 server.use(middlewares);
@@ -16,10 +16,12 @@ const createToken = (payload, expiry) => {
   return jwt.sign(payload, SECRET_KEY, { expiresIn: expiry });
 };
 
-const verifyToken = (token) => {
-  return jwt.verify(token, SECRET_KEY, (err, decode) =>
-    decode !== undefined ? decode : err
-  );
+const verifyToken = (token, key) => {
+  try {
+    return jwt.verify(token, key);
+  } catch (err) {
+    null;
+  }
 };
 
 server.post("/auth/login", (req, res) => {
@@ -38,7 +40,7 @@ server.post("/auth/login", (req, res) => {
 server.post("/auth/refresh", (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifyToken(token, SECRET_KEY);
     const newAccessToken = createToken(
       { username: decoded.username },
       ACCESS_TOKEN_EXPIRY
@@ -55,15 +57,19 @@ server.post("/auth/refresh", (req, res) => {
   }
 });
 
-// Middleware for token verification
+// Middleware untuk verifikasi token
 server.use((req, res, next) => {
   if (req.path !== "/auth/login" && req.path !== "/auth/refresh") {
     const token = req.headers.authorization?.split(" ")[1];
     if (token) {
-      const verified = verifyToken(token);
-      if (verified) {
-        next();
-      } else {
+      try {
+        const verified = verifyToken(token, SECRET_KEY);
+        if (verified) {
+          next();
+        } else {
+          res.status(401).json({ message: "Unauthorized - Invalid token" });
+        }
+      } catch (err) {
         res.status(401).json({ message: "Unauthorized - Invalid token" });
       }
     } else {
@@ -73,7 +79,6 @@ server.use((req, res, next) => {
     next();
   }
 });
-
 // CRUD routes for personaldata
 server.get("/personaldata", (req, res) => {
   const personalData = router.db.get("personaldata").value();

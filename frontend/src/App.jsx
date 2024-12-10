@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import PersonalData from "./components/PersonalData";
 import "./App.css";
+import secureStorage from "react-secure-storage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = secureStorage.getItem("accessToken");
     if (accessToken) {
       setIsLoggedIn(true);
     }
@@ -18,8 +19,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    secureStorage.removeItem("accessToken");
+    secureStorage.removeItem("refreshToken");
     setIsLoggedIn(false);
   };
 

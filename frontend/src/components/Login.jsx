@@ -1,6 +1,7 @@
 // src/components/Login.js
 import { useState } from "react";
 import api from "../axiosConfig";
+import secureStorage from "react-secure-storage";
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({
@@ -19,8 +20,8 @@ const Login = ({ onLogin }) => {
     try {
       const response = await api.post("/auth/login", credentials);
       const { accessToken, refreshToken } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+      secureStorage.setItem("accessToken", accessToken);
+      secureStorage.setItem("refreshToken", refreshToken);
       onLogin();
     } catch (err) {
       setError("Login failed. Please check your credentials.", err);
