@@ -1,6 +1,8 @@
-// src/utils/axiosConfig.js
+// src/axiosConfig.js
 import axios from "axios";
+import createAuthRefreshInterceptor from "axios-auth-refresh";
 
+// Create Axios instance
 const api = axios.create({
   baseURL: "http://localhost:3000",
 });
@@ -8,31 +10,33 @@ const api = axios.create({
 // Refresh token logic
 const refreshAuthLogic = async (failedRequest) => {
   try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    const response = await axios.post(
+    const tokenRefreshResponse = await api.post(
       "/auth/refresh",
       {},
       {
         headers: {
-          Authorization: `Bearer ${refreshToken}`,
+          Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
         },
       }
     );
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    const { accessToken, refreshToken } = tokenRefreshResponse.data;
 
     localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
+    localStorage.setItem("refreshToken", refreshToken);
 
     failedRequest.response.config.headers["Authorization"] =
       "Bearer " + accessToken;
-    return Promise.resolve();
+    return await Promise.resolve();
   } catch (error) {
     // Handle refresh token expiration, e.g., redirect to login page
     localStorage.clear();
     window.location.href = "/login";
-    return Promise.reject(error);
+    return await Promise.reject(error);
   }
 };
+
+// Instantiate the interceptor
+createAuthRefreshInterceptor(api, refreshAuthLogic);
 
 // Add authorization header to every request
 api.interceptors.request.use((request) => {
@@ -42,19 +46,5 @@ api.interceptors.request.use((request) => {
   }
   return request;
 });
-
-// Interceptor untuk refresh token ketika access token expired
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      await refreshAuthLogic(originalRequest);
-      return api(originalRequest);
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default api;
