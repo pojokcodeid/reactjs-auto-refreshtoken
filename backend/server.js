@@ -6,8 +6,8 @@ const router = jsonServer.router("db.json");
 const middlewares = jsonServer.defaults();
 
 const SECRET_KEY = "123456789";
-const ACCESS_TOKEN_EXPIRY = "5m";
-const REFRESH_TOKEN_EXPIRY = "7d";
+const ACCESS_TOKEN_EXPIRY = "5m"; // expires in 5 minutes
+const REFRESH_TOKEN_EXPIRY = "7d"; // expires in 7 days
 
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
@@ -27,7 +27,6 @@ const verifyToken = (token, key) => {
 server.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
   const user = router.db.get("users").find({ username, password }).value();
-
   if (user) {
     const accessToken = createToken({ username }, ACCESS_TOKEN_EXPIRY);
     const refreshToken = createToken({ username }, REFRESH_TOKEN_EXPIRY);
@@ -57,7 +56,6 @@ server.post("/auth/refresh", (req, res) => {
   }
 });
 
-// Middleware untuk verifikasi token
 server.use((req, res, next) => {
   if (req.path !== "/auth/login" && req.path !== "/auth/refresh") {
     const token = req.headers.authorization?.split(" ")[1];
@@ -79,6 +77,7 @@ server.use((req, res, next) => {
     next();
   }
 });
+
 // CRUD routes for personaldata
 server.get("/personaldata", (req, res) => {
   const personalData = router.db.get("personaldata").value();
@@ -112,13 +111,14 @@ server.put("/personaldata/:id", (req, res) => {
     .write();
   res.status(200).json(personalData);
 });
-
 server.delete("/personaldata/:id", (req, res) => {
   router.db
     .get("personaldata")
     .remove({ id: Number(req.params.id) })
     .write();
-  res.status(204).end();
+  res.status(200).json({
+    message: "Data deleted successfully",
+  });
 });
 server.use(router);
 server.listen(3000, () => {
